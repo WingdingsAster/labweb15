@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация (Лаб. №11)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            background-color: #ffdddd;
+            color: #d8000c;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none; /* Скрыто по умолчанию */
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-align: center;
+            display: none; /* Скрыто по умолчанию */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Регистрация</h2>
+
+    <div id="errorBox" class="error">
+        <ul id="errorList"></ul>
+    </div>
+    <div id="successBox" class="success"></div>
+
+    <form id="registerForm">
+        <div class="form-group">
+            <label>Логин:</label>
+            <input type="text" id="login" required placeholder="От 4 до 20 символов">
+        </div>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="email" required placeholder="example@mail.com">
+        </div>
+        <div class="form-group">
+            <label>Пароль:</label>
+            <input type="password" id="password" required placeholder="Мин. 8 символов, буквы и цифры">
+        </div>
+        <div class="form-group">
+            <label>Имя:</label>
+            <input type="text" id="first_name" required placeholder="Только буквы">
+        </div>
+        <div class="form-group">
+            <label>Фамилия:</label>
+            <input type="text" id="last_name" required placeholder="Только буквы">
+        </div>
+        <div class="form-group">
+            <label>Телефон:</label>
+            <input type="text" id="phone" required placeholder="+7(XXX)XXXXXXX">
+        </div>
+        <div class="form-group">
+            <label>Комментарий / Сообщение:</label>
+            <textarea id="comment" rows="3" placeholder="Расскажите о себе..."></textarea>
+        </div>
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+        // Останавливаем стандартную отправку формы (перезагрузку страницы)
+        event.preventDefault();
+
+        // Получаем значения из полей
+        const login = document.getElementById('login').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const firstName = document.getElementById('first_name').value.trim();
+        const lastName = document.getElementById('last_name').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const comment = document.getElementById('comment').value.trim();
+
+        let errors = [];
+
+        // --- Валидация данных ---
+
+        // Проверка логина
+        if (login.length < 4 || login.length > 20) {
+            errors.push("Логин должен содержать от 4 до 20 символов.");
+        }
+
+        // Проверка пароля (длина и наличие букв/цифр)
+        if (password.length < 8) {
+            errors.push("Пароль должен быть не менее 8 символов.");
+        } else if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+            errors.push("Пароль должен содержать как минимум одну букву и одну цифру.");
+        }
+
+        // Проверка Email (простая регулярка)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            errors.push("Некорректный формат email.");
+        }
+
+        // Проверка имени и фамилии (только буквы: латиница и кириллица)
+        const nameRegex = /^[a-zA-Zа-яА-ЯёЁ]+$/;
+        if (!nameRegex.test(firstName) || !nameRegex.test(lastName)) {
+            errors.push("Имя и фамилия должны содержать только буквы.");
+        }
+
+        // Проверка телефона (формат +7(XXX)XXXXXXX)
+        const phoneRegex = /^\+7\(\d{3}\)\d{7}$/;
+        if (!phoneRegex.test(phone)) {
+            errors.push("Телефон должен быть в формате +7(XXX)XXXXXXX.");
+        }
+
+        // --- Имитация Базы Данных (LocalStorage) ---
+        
+        // Получаем список пользователей из памяти (или пустой массив, если никого нет)
+        let users = JSON.parse(localStorage.getItem('lab_users')) || [];
+
+        // Проверка уникальности Email
+        const emailExists = users.some(user => user.email === email);
+        if (emailExists) {
+            errors.push("Пользователь с таким email уже существует.");
+        }
+
+        // --- Обработка результатов ---
+        const errorBox = document.getElementById('errorBox');
+        const errorList = document.getElementById('errorList');
+        const successBox = document.getElementById('successBox');
+
+        // Очищаем предыдущие сообщения
+        errorList.innerHTML = '';
+        errorBox.style.display = 'none';
+        successBox.style.display = 'none';
+
+        if (errors.length > 0) {
+            // Если есть ошибки, выводим их
+            errors.forEach(function(err) {
+                let li = document.createElement('li');
+                li.textContent = err;
+                errorList.appendChild(li);
+            });
+            errorBox.style.display = 'block';
+        } else {
+            // Если ошибок нет, "сохраняем в БД"
+            const newUser = {
+                login: login,
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                phone: phone,
+                comment: comment
+                // Пароль в реальных проектах на фронтенде не хранят, 
+                // но для эмуляции можно было бы сохранить хэш. Мы просто его проигнорируем.
+            };
+
+            users.push(newUser);
+            localStorage.setItem('lab_users', JSON.stringify(users));
+
+            // Показываем сообщение об успехе и очищаем форму
+            successBox.textContent = "Регистрация прошла успешно!";
+            successBox.style.display = 'block';
+            document.getElementById('registerForm').reset();
+        }
+    });
+</script>
+
+</body>
+</html>
